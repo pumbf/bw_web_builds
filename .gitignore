@@ -3,3 +3,5 @@ web-vault/
 
 *.tar.gz
 *.tar.gz.text
+
+.DS_Store

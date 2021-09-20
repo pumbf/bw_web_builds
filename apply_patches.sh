@@ -16,7 +16,7 @@ fi
 
 echo "Using patch: $PATCH_NAME"
 cp ../patches/$PATCH_NAME ../patches/$PATCH_NAME.apply
-sed -i "s|\((Powered by Vaultwarden)\)|\1<br/><a href='https://beian.miit.gov.cn/' target='_blank'>粤ICP备2021027141号</a>|g" "../patches/$PATCH_NAME.apply"
+sed -i "s|\((Powered by Vaultwarden)\)|\1<br/><a href='https://beian.miit.gov.cn/' style='color: inherit;' target='_blank'>粤ICP备2021027141号</a>|g" "../patches/$PATCH_NAME.apply"
 git apply "../patches/$PATCH_NAME.apply"
 rm ../patches/$PATCH_NAME.apply
 echo "Patching successful!"

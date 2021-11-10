@@ -47,9 +47,9 @@ git submodule update --recursive --init
 . ../apply_patches.sh
 
 # Build
-npm ci
-npm audit fix || true
-npm run dist
+npm ci --legacy-peer-deps
+npm audit fix --legacy-peer-deps || true
+npm run dist:oss:selfhost
 
 # Delete debugging map files, optional
 #find build -name "*.map" -delete

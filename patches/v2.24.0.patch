@@ -91,7 +91,7 @@ index 4c2c4ca1..dc990b22 100644
      <br> {{'versionNumber' | i18n : version}}
  </div>
 diff --git a/src/app/layouts/navbar.component.html b/src/app/layouts/navbar.component.html
-index bdc5df36..82a8baa4 100644
+index 8581e239..24ae6788 100644
 --- a/src/app/layouts/navbar.component.html
 +++ b/src/app/layouts/navbar.component.html
 @@ -46,7 +46,7 @@
@@ -104,10 +104,10 @@ index bdc5df36..82a8baa4 100644
                          {{'getHelp' | i18n}}
                      </a>
 diff --git a/src/app/organizations/settings/organization-subscription.component.ts b/src/app/organizations/settings/organization-subscription.component.ts
-index 216c1d91..73e82119 100644
+index cbe8e918..4616b57f 100644
 --- a/src/app/organizations/settings/organization-subscription.component.ts
 +++ b/src/app/organizations/settings/organization-subscription.component.ts
-@@ -111,7 +111,7 @@ export class OrganizationSubscriptionComponent implements OnInit {
+@@ -112,7 +112,7 @@ export class OrganizationSubscriptionComponent implements OnInit {
          const contactSupport = await this.platformUtilsService.showDialog(this.i18nService.t('changeBillingPlanDesc'),
              this.i18nService.t('changeBillingPlan'), this.i18nService.t('contactSupport'), this.i18nService.t('close'));
          if (contactSupport) {
@@ -116,6 +116,19 @@ index 216c1d91..73e82119 100644
          }
      }
  
+diff --git a/src/app/organizations/vault/vault.component.ts b/src/app/organizations/vault/vault.component.ts
+index 288bb28b..2d213c46 100644
+--- a/src/app/organizations/vault/vault.component.ts
++++ b/src/app/organizations/vault/vault.component.ts
+@@ -62,7 +62,7 @@ export class VaultComponent implements OnInit, OnDestroy {
+ 
+     ngOnInit() {
+         this.trashCleanupWarning = this.i18nService.t(
+-            this.platformUtilsService.isSelfHost() ? 'trashCleanupWarningSelfHosted' : 'trashCleanupWarning'
++            'trashCleanupWarningSelfHosted'
+         );
+ 
+         const queryParams = this.route.parent.params.subscribe(async params => {
 diff --git a/src/app/send/access.component.html b/src/app/send/access.component.html
 index 84944a2b..107ad359 100644
 --- a/src/app/send/access.component.html
@@ -142,10 +155,10 @@ index 84944a2b..107ad359 100644
          </div>
      </div>
 diff --git a/src/app/services/services.module.ts b/src/app/services/services.module.ts
-index 6639268f..fa5e222b 100644
+index 6ae3ab91..be6db1e6 100644
 --- a/src/app/services/services.module.ts
 +++ b/src/app/services/services.module.ts
-@@ -145,12 +145,23 @@ const eventLoggingService = new EventLoggingService(storageService, apiService,
+@@ -147,12 +147,23 @@ const eventLoggingService = new EventLoggingService(storageService, apiService,
  containerService.attachToWindow(window);
  
  export function initFactory(): Function {
@@ -173,7 +186,7 @@ index 6639268f..fa5e222b 100644
          setTimeout(() => notificationsService.init(), 3000);
  
 diff --git a/src/app/vault/vault.component.ts b/src/app/vault/vault.component.ts
-index 7ac88452..e6d92ec7 100644
+index e2ed73eb..a85090fe 100644
 --- a/src/app/vault/vault.component.ts
 +++ b/src/app/vault/vault.component.ts
 @@ -77,9 +77,7 @@ export class VaultComponent implements OnInit, OnDestroy {
@@ -188,12 +201,14 @@ index 7ac88452..e6d92ec7 100644
          const queryParamsSub = this.route.queryParams.subscribe(async params => {
              await this.syncService.fullSync(false);
 diff --git a/src/scss/styles.scss b/src/scss/styles.scss
-index a3fb35de..e439e08e 100644
+index 45a91fe1..4509368f 100644
 --- a/src/scss/styles.scss
 +++ b/src/scss/styles.scss
-@@ -1,5 +1,53 @@
- @import "../css/webfonts.css";
- 
+@@ -55,3 +55,54 @@
+ @import "./plugins";
+ @import "./tables";
+ @import "./toasts";
++
 +/**** START Bitwarden_RS CHANGES ****/
 +/* This combines all selectors extending it into one */
 +%bwrs-hide { display: none !important; }
@@ -220,6 +235,9 @@ index a3fb35de..e439e08e 100644
 +app-organization-plans > form > div.form-check { @extend %bwrs-hide; }
 +app-organization-plans > form > h2.mt-5 { @extend %bwrs-hide; }
 +
++/* Hide the `This account is owned by a business` checkbox and label */
++#ownedBusiness, label[for^=ownedBusiness] { @extend %bwrs-hide; }
++
 +/* Hide the `API Key` section under `My Account` */
 +app-account > div:nth-child(9),
 +app-account > p,
@@ -241,15 +259,11 @@ index a3fb35de..e439e08e 100644
 +app-org-account > div.secondary-header:nth-child(3) + p { @extend %bwrs-hide; }
 +app-org-account > div.secondary-header:nth-child(3) + p + form { @extend %bwrs-hide; }
 +/**** END Bitwarden_RS CHANGES ****/
-+
- $primary: #175DDC;
- $primary-accent: #1252A3;
- $secondary: #ced4da;
 diff --git a/src/services/webPlatformUtils.service.ts b/src/services/webPlatformUtils.service.ts
-index fb321f5b..bdb1ad85 100644
+index d7764f1d..a521ba3a 100644
 --- a/src/services/webPlatformUtils.service.ts
 +++ b/src/services/webPlatformUtils.service.ts
-@@ -223,11 +223,11 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
+@@ -224,11 +224,11 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
      }
  
      isDev(): boolean {

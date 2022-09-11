@@ -1,5 +1,10 @@
 # Compile the web vault using docker
 # Usage:
+#    Quick and easy:
+#    `make docker-extract`
+#    or, if you just want to build
+#    `make docker`
+#
 #    docker build -t web_vault_build .
 #    image_id=$(docker create web_vault_build)
 #    docker cp $image_id:/bw_web_vault.tar.gz .
@@ -12,8 +17,8 @@
 #    docker cp $image_id:/bw_web_vault.tar.gz .
 #    docker rm $image_id
 
-FROM node:16-buster as build
-RUN node -v && npm -v
+FROM node:16-bullseye as build
+RUN node --version && npm --version
 
 # Prepare the folder to enable non-root, otherwise npm will refuse to run the postinstall
 RUN mkdir /vault
@@ -21,30 +26,33 @@ RUN chown node:node /vault
 USER node
 
 # Can be a tag, release, but prefer a commit hash because it's not changeable
-# https://github.com/bitwarden/web/commit/$VAULT_VERSION
+# https://github.com/bitwarden/clients/commit/${VAULT_VERSION}
 #
-# Using https://github.com/bitwarden/web/releases/tag/v2.25.1
-ARG VAULT_VERSION=23b30422d886bd395259cb864a7d83caffe1d099
+# Using https://github.com/bitwarden/clients/releases/tag/web-v2022.9.0
+ARG VAULT_VERSION=b30fc13fb526029a81304a26c31cb0acd6219241
 
-RUN git clone https://github.com/bitwarden/web.git /vault
+RUN git clone https://github.com/bitwarden/clients.git /vault
 WORKDIR /vault
 
-RUN git checkout "$VAULT_VERSION" && \
-    git submodule update --recursive --init
+RUN git -c advice.detachedHead=false checkout "${VAULT_VERSION}"
 
 COPY --chown=node:node patches /patches
-COPY --chown=node:node apply_patches.sh /apply_patches.sh
+COPY --chown=node:node scripts/apply_patches.sh /apply_patches.sh
 
 RUN bash /apply_patches.sh
 
 # Build
-RUN npm ci --legacy-peer-deps
-RUN npm audit fix --legacy-peer-deps || true
+RUN npm ci
+RUN npm audit fix || true
+
+# Switch to the web apps folder
+WORKDIR /vault/apps/web
+
 RUN npm run dist:oss:selfhost
 
 RUN printf '{"version":"%s"}' \
       $(git -c 'versionsort.suffix=-' ls-remote --tags --sort='v:refname' https://github.com/dani-garcia/bw_web_builds.git 'v*' | tail -n1 | sed -E 's#.*?refs/tags/v##') \
-      > build/bwrs-version.json
+      > build/vw-version.json
 
 # Delete debugging map files, optional
 # RUN find build -name "*.map" -delete
@@ -57,7 +65,7 @@ RUN tar -czvf "bw_web_vault.tar.gz" web-vault --owner=0 --group=0
 # The result is included both uncompressed and as a tar.gz, to be able to use it in the docker images and the github releases directly
 FROM scratch
 # hadolint ignore=DL3010
-COPY --from=build /vault/bw_web_vault.tar.gz /bw_web_vault.tar.gz
-COPY --from=build /vault/web-vault /web-vault
+COPY --from=build /vault/apps/web/bw_web_vault.tar.gz /bw_web_vault.tar.gz
+COPY --from=build /vault/apps/web/web-vault /web-vault
 # Added so docker create works, can't actually run a scratch image
 CMD [""]

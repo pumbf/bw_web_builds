@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -o pipefail -o errexit
-BASEDIR=$(dirname "$(readlink -f "$0")")
+BASEDIR=$(RL=$(readlink -n "$0"); SP="${RL:-$0}"; dirname "$(cd "$(dirname "${SP}")"; pwd)/$(basename "${SP}")")
 
 # Error handling
 handle_error() {
@@ -18,13 +18,34 @@ mkdir -pv "${BASEDIR}/../${OUTPUT_FOLDER}"
 pushd "${VAULT_FOLDER}/apps/web"
 
 VAULT_VERSION=$(get_web_vault_version)
-OUTPUT_NAME="${OUTPUT_FOLDER}/bw_web_${VAULT_VERSION}"
+OUTPUT_NAME="${BASEDIR}/../${OUTPUT_FOLDER}/bw_web_${VAULT_VERSION}"
+DATE_FORMAT="${DATE_FORMAT:-%Y-%m-%dT%H:%M:%S%z}"
+
+# Preserve previous output
+if [[ -f "${OUTPUT_NAME}.tar.gz" ]];
+then
+    DATE_SUFFIX=$(date -r "${OUTPUT_NAME}.tar.gz" +"${DATE_FORMAT}")
+    mv "${OUTPUT_NAME}.tar.gz" "${OUTPUT_NAME}_${DATE_SUFFIX}.tar.gz"
+fi
+
+# Cleanup previous output directory
+if [[ -d "${OUTPUT_NAME}" ]];
+then
+    rm -rf "${OUTPUT_NAME}"
+fi
 
 mv build web-vault
 # Tar the web-vault
-tar -czvf "${BASEDIR}/../${OUTPUT_NAME}.tar.gz" web-vault --owner=0 --group=0
+# Check if we are using bsdtar or gnu-tar, bsdtar does not support --owner/--group
+if [[ "$(tar --version)" =~ .*bsdtar.* ]];
+then
+    tar -czvf "${OUTPUT_NAME}.tar.gz" web-vault
+else
+    tar -czvf "${OUTPUT_NAME}.tar.gz" web-vault --owner=0 --group=0
+fi
+
 # Copy the web-vault
-cp -dpr web-vault "${BASEDIR}/../${OUTPUT_NAME}"
+cp -pR web-vault "${OUTPUT_NAME}"
 mv web-vault build
 
 popd

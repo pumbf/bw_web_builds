@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -o pipefail -o errexit
-BASEDIR=$(dirname "$(readlink -f "$0")")
+BASEDIR=$(RL=$(readlink -n "$0"); SP="${RL:-$0}"; dirname "$(cd "$(dirname "${SP}")"; pwd)/$(basename "${SP}")")
 
 # Error handling
 handle_error() {
@@ -35,7 +35,7 @@ else
     # If there already is a checked-out repo, lets clean it up first.
     pushd "${VAULT_FOLDER}"
         # Stash current changes if there are any, we don't want to loose our work if we had some
-        git stash --all --quiet &> /dev/null || true
+        git stash --include-untracked --quiet &> /dev/null || true
         # Checkout the master repo first
         git checkout master
         git reset --hard

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -o pipefail -o errexit
-BASEDIR=$(dirname "$(readlink -f "$0")")
+BASEDIR=$(RL=$(readlink -n "$0"); SP="${RL:-$0}"; dirname "$(cd "$(dirname "${SP}")"; pwd)/$(basename "${SP}")")
 
 # Error handling
 handle_error() {
@@ -20,7 +20,6 @@ npm --version
 # Build
 pushd "${VAULT_FOLDER}"
 npm ci
-npm audit fix || true
 
 pushd apps/web
 npm run dist:oss:selfhost
@@ -30,7 +29,7 @@ npm run dist:oss:selfhost
 
 # Create vw-version.json with the latest tag from the remote repo.
 printf '{"version":"%s"}' \
-      "$(git -c 'versionsort.suffix=-' ls-remote --tags --sort='v:refname' https://github.com/dani-garcia/bw_web_builds.git 'v*' | tail -n1 | sed -E 's#.*?refs/tags/v##')" \
+      "$(git -c 'versionsort.suffix=-' ls-remote --tags --refs --sort='v:refname' https://github.com/dani-garcia/bw_web_builds.git 'v*' | tail -n1 | grep -Eo '[^\/v]*$')" \
       > build/vw-version.json
 
 popd

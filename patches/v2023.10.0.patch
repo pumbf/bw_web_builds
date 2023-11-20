@@ -250,7 +250,7 @@ diff --git a/apps/web/src/app/layouts/frontend-layout.component.html b/apps/web/
 index a6988baf28..b6adbe94d5 100644
 --- a/apps/web/src/app/layouts/frontend-layout.component.html
 +++ b/apps/web/src/app/layouts/frontend-layout.component.html
-@@ -1,6 +1,12 @@
+@@ -1,6 +1,10 @@
  <router-outlet></router-outlet>
  <div class="container my-5 text-muted text-center">
    <environment-selector></environment-selector>
@@ -259,9 +259,7 @@ index a6988baf28..b6adbe94d5 100644
    {{ "versionNumber" | i18n : version }}
 +  <br /><br />
 +  <div class="small">
-+    A modified version of the Bitwarden&reg; Web Vault for Vaultwarden (an unofficial rewrite of the
-+    Bitwarden&reg; server).<br />
-+    Vaultwarden is not associated with the Bitwarden&reg; project nor Bitwarden Inc.
++    <a href='https://beian.miit.gov.cn/' style='color: inherit;' target='_blank'>粤ICP备2021027141号</a><br/><a target='_blank' href='http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44011202001765' style='color: inherit;' >粤公网安备 44011202001765号</a>
 +  </div>
  </div>
 diff --git a/apps/web/src/app/layouts/navbar.component.html b/apps/web/src/app/layouts/navbar.component.html
